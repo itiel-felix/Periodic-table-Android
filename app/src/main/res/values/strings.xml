@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Practica4_RecyclerView</string>
+    <string name="title_activity_element_interface">ElementInterface</string>
+    <string name="title_activity_element_info">ElementInfo</string>
+</resources>
