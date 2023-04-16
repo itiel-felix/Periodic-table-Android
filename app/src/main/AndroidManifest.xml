@@ -12,6 +12,11 @@
         android:theme="@style/Theme.Practica4_RecyclerView"
         tools:targetApi="31">
         <activity
+            android:name=".FilterActivity"
+            android:exported="false"
+            android:label="@string/title_activity_filter"
+            android:theme="@style/Theme.Practica4_RecyclerView" />
+        <activity
             android:name=".ElementInfo"
             android:exported="false"
             android:label="@string/title_activity_element_info"
