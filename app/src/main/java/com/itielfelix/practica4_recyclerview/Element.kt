@@ -3,9 +3,10 @@ package com.itielfelix.practica4_recyclerview
 import android.os.Parcel
 import android.os.Parcelable
 
-data class Element(val atomicNum:Int, val symbol: String, val name:String, val atomicMass:String, val oxidationStates:String, val state:String):Parcelable {
+data class Element(val atomicNum:Int, val symbol: String, val name:String, val atomicMass:String, val oxidationStates:String, val state:String, val family:String):Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
+        parcel.readString()!!,
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readString()!!,

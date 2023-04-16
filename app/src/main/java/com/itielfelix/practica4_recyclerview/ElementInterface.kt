@@ -39,7 +39,7 @@ import androidx.compose.ui.window.Dialog
 import com.itielfelix.practica4_recyclerview.ui.theme.Practica4_RecyclerViewTheme
 
 var elementsArray: MutableList<Element> = ArrayList()
-val filterStringArray = listOf<String>( "Nombre","Numero atomico","Estado fisico")
+val filterStringArray = listOf( "Nombre","Numero atomico","Estado fisico")
 var globalFilter = "Numero atomico"
 var filter = ""
 class ElementInterface : ComponentActivity() {
@@ -65,7 +65,7 @@ class ElementInterface : ComponentActivity() {
         var infoActive by rememberSaveable { mutableStateOf(false) }
         var actualFilter by remember{ mutableStateOf("Numero atomico") }
         val allThings = remember { elementsArray.toMutableStateList() }
-
+        val thisContext = LocalContext.current
         Column(Modifier.fillMaxSize()) {
             Row(verticalAlignment = CenterVertically) {
                 IconButton(onClick = {
@@ -82,8 +82,10 @@ class ElementInterface : ComponentActivity() {
                 )
                 Text(text = "Filter")
                 IconButton(onClick = {
-                    filterActive = true
-                    infoActive = false
+//                    filterActive = true
+//                    infoActive = false
+                    val intent = Intent(thisContext, FilterActivity::class.java)
+                    thisContext.startActivity(intent)
 
                 }) {
                     Icon(imageVector = Icons.Default.FilterList, contentDescription = "")
@@ -287,7 +289,9 @@ class ElementInterface : ComponentActivity() {
             readAllAsSequence().forEach { row ->
                 if (i != 0 && i < 51)
                     elementsArray.add(
-                        Element(row[0].toInt(), row[1], row[2], row[3], row[12], row[13])
+                        Element(row[0].toInt(), row[1], row[2], row[3], row[12], row[13],
+                            row[row.lastIndex -1]
+                        )
                     )
                 i++
             }
@@ -309,64 +313,26 @@ class ElementInterface : ComponentActivity() {
         val radioOptions = filterArray
         val (selectedOption, onOptionSelected) = remember { mutableStateOf(selectedFilter) }
         Column(
-            // we are using column to align our 
-            // imageview to center of the screen.
-
-            // below line is used for
-            // specifying vertical arrangement.
             verticalArrangement = Arrangement.SpaceEvenly,
-
-            // below line is used for
-            // specifying horizontal arrangement.
             horizontalAlignment = CenterHorizontally,
         ) {
-            // we are displaying all our
-            // radio buttons in column.
             Column {
-                // below line is use to set data to
-                // each radio button in columns.
                 radioOptions.forEach { text ->
                     Row(
                         Modifier
-                            // using modifier to add max 
-                            // width to our radio button.
                             .fillMaxWidth()
-                            // below method is use to add
-//                            // selectable to our radio button.
-//                            .selectable(
-//                                // this method is called when
-//                                // radio button is selected.
-//                                selected = (text == selectedOption),
-//                                // below method is called on
-//                                // clicking of radio button.
-//                                onClick = { onOptionSelected(text) }
-//                            )
-                            // below line is use to add
-                            // padding to radio button.
                             .padding(horizontal = 16.dp),
                         verticalAlignment = CenterVertically,
 
                         ) {
-                        // below line is use to get context.
                         val context = LocalContext.current
-
-                        // below line is use to
-                        // generate radio button
                         RadioButton(
-                            // inside this method we are
-                            // adding selected with a option.
                             selected = (text == selectedOption), modifier = Modifier.padding(8.dp),
                             onClick = {
-                                // inside on click method we are setting a
-                                // selected option of our radio buttons.
                                 onOptionSelected(text)
-                                // after clicking a radio button 
-                                // we are displaying a toast message.
                                 Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
                             }
                         )
-                        // below line is use to add
-                        // text to our radio buttons.
                         Text(
                             text = text,
                             modifier = Modifier.padding(start = 8.dp, top = 8.dp)
