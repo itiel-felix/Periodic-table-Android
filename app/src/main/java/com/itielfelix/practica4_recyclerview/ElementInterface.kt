@@ -1,4 +1,5 @@
 package com.itielfelix.practica4_recyclerview
+import android.annotation.SuppressLint
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import android.content.Context
 import android.content.Intent
@@ -75,8 +76,8 @@ class ElementInterface : ComponentActivity() {
         var order by remember{ mutableStateOf("Numero atomico") }
 
         var letter by remember{ mutableStateOf(filterObject.letter) }
-        var familySelected = remember{ filterObject.family.toMutableList() }
-        var statesSelected = remember{ filterObject.states.toMutableList() }
+        val familySelected = remember{ filterObject.family.toMutableList() }
+        val statesSelected = remember{ filterObject.states.toMutableList() }
         val allThings = remember { elementsArray.toMutableStateList() }
         val thisContext = LocalContext.current
 
@@ -127,7 +128,7 @@ class ElementInterface : ComponentActivity() {
                     Icon(imageVector = Icons.Default.FilterList, contentDescription = "")
                 }
             }
-            LazyColumn (){
+            LazyColumn {
                 items(allThings) { element ->
                     if(element.name.replace(" ","")[0].toString() == filterObject.letter || letter == "-"){
                         if(familySelected.isEmpty() || familySelected.contains(element.family)){
@@ -140,28 +141,29 @@ class ElementInterface : ComponentActivity() {
                     order = a
                 }
             }
-            if (order == "Nombre") {
-                elementsArray.sortBy { it.name }
-                allThings.clear()
-                allThings.addAll(elementsArray)
-            } else
-                if (order == "Numero atomico") {
+            when (order) {
+                "Nombre" -> {
+                    elementsArray.sortBy { it.name }
+                    allThings.clear()
+                    allThings.addAll(elementsArray)
+                }
+                "Numero atomico" -> {
                     elementsArray.sortBy { it.atomicNum }
                     allThings.clear()
                     allThings.addAll(elementsArray)
-                } else
-                    if (order == "Estado fisico") {
-                        elementsArray.sortBy { it.atomicNum }
-                        elementsArray.sortBy { it.state }
-                        allThings.clear()
-                        allThings.addAll(elementsArray)
-                    }
+                }
+                "Estado fisico" -> {
+                    elementsArray.sortBy { it.atomicNum }
+                    elementsArray.sortBy { it.state }
+                    allThings.clear()
+                    allThings.addAll(elementsArray)
+                }
+            }
             FilterDialog(
                 filterActive,
                 infoActive,
-                order,
-                { filterActive = false; infoActive = false },
-                { filterActive = false; infoActive = false })
+                order
+            ) { filterActive = false; infoActive = false }
         }
         order = globalFilter
     }
@@ -169,9 +171,8 @@ class ElementInterface : ComponentActivity() {
 
     @Composable
     fun FilterDialog(
-        show: Boolean, info: Boolean, selectedFilter:String,
-        onDismiss: () -> Unit,
-        onConfirm: () -> Unit
+        show: Boolean, info: Boolean, selectedFilter: String,
+        onDismiss: () -> Unit
     ) {
         if (show) {
             Dialog(onDismissRequest = { onDismiss() }) {
@@ -243,6 +244,7 @@ class ElementInterface : ComponentActivity() {
         }
     }
 
+    @SuppressLint("DiscouragedApi")
     @Composable
     fun ElementCard(element: Element) {
         val thisContext = LocalContext.current
@@ -294,7 +296,7 @@ class ElementInterface : ComponentActivity() {
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.Start
                         ) {
-                            Row() {
+                            Row {
                                 Text(
                                     text = element.atomicNum.toString() + "",
                                     fontSize = 18.sp,
@@ -322,15 +324,14 @@ class ElementInterface : ComponentActivity() {
         }
     }
 
-    fun readingText(context: Context):Boolean {
+    private fun readingText(context: Context):Boolean {
         var i = 0
-        var a = true
+        val a = true
         elementsArray = ArrayList()
         csvReader().open(context.assets.open("data.csv")) {
             readAllAsSequence().forEach { row ->
                 if (i != 0 && i < 51){
-                    if(i==0) a = filterObject.letter == "-" || row[2].replace(" ","").get(0).toString() == filterObject.letter
-                    if(filterObject.letter == "-" || row[2].replace(" ","").get(0).toString() == filterObject.letter) {
+                    if(filterObject.letter == "-" || row[2].replace(" ","")[0].toString() == filterObject.letter) {
                         //if(row[2] == "Oxygen")
                         val element  = Element(
                             atomicNum = row[0].toInt(),
@@ -351,26 +352,26 @@ class ElementInterface : ComponentActivity() {
         return a
     }
 
-    fun selectColor(color: String): Color {
-        if (color == "liquid") {
-            return Color(0xFFFF5100)
-        } else if (color == "solid")
-            return Color(0xFFFFFFFF)
-        else
-            return Color(0xFF00EBA0)
+    private fun selectColor(color: String): Color {
+        return when (color) {
+            "liquid" -> {
+                Color(0xFFFF5100)
+            }
+            "solid" -> Color(0xFFFFFFFF)
+            else -> Color(0xFF00EBA0)
+        }
     }
 
 
     @Composable
     fun simpleRadioButtonComponent(filterArray: List<String>, selectedFilter:String): String {
-        val radioOptions = filterArray
         val (selectedOption, onOptionSelected) = remember { mutableStateOf(selectedFilter) }
         Column(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = CenterHorizontally,
         ) {
             Column {
-                radioOptions.forEach { text ->
+                filterArray.forEach { text ->
                     Row(
                         Modifier
                             .fillMaxWidth()
@@ -378,7 +379,6 @@ class ElementInterface : ComponentActivity() {
                         verticalAlignment = CenterVertically,
 
                         ) {
-                        val context = LocalContext.current
                         RadioButton(
                             selected = (text == selectedOption), modifier = Modifier.padding(8.dp),
                             onClick = {
