@@ -1,19 +1,22 @@
 package com.itielfelix.practica4_recyclerview
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,16 +24,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import com.itielfelix.practica4_recyclerview.ui.theme.Practica4_RecyclerViewTheme
-var selectedFilter = "Numero atomico"
 var letterList = listOf("-","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
 var selectedLetter = ""
-var selectedItems:MutableList<String> = mutableListOf("Metals", "Noble gases", "Non metal", "Halogen")
+var selectedItems:MutableList<String> = mutableListOf( "noble gas", "earth metal", "halogen", "nonmetal","transition metal","alkali metal")
+var statesList:MutableList<String> = mutableListOf("liquid", "gas", "solid")
+
 class FilterActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -47,11 +50,12 @@ class FilterActivity : ComponentActivity() {
     }
 
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable//Use chips for familys
     fun UIBUilding() {
-        // Draw a rectangle shape with rounded corners inside the dialog
         val thisContext = LocalContext.current
-        val disabledItem = 1
+        var list = remember{filterObject.family}
+        var states = remember{filterObject.states}
         Column(
             Modifier
                 .fillMaxSize()
@@ -62,10 +66,22 @@ class FilterActivity : ComponentActivity() {
                 Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp), horizontalArrangement = Arrangement.Center
-            ) { Text("Filter", fontSize = 18.sp, fontWeight = FontWeight.Bold) }
-            filter = simpleRadioButtonComponent(filterArray = filterStringArray, selectedFilter)
+            ) {
+                Text("Filter", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+            Row(Modifier.fillMaxWidth().padding(top = 20.dp), horizontalArrangement = Arrangement.Center) {
+                Text("Order by", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+            val order = simpleRadioButtonComponent(filterArray = filterStringArray, filterObject.order)
+            Row(Modifier.fillMaxWidth().padding(top = 20.dp), horizontalArrangement = Arrangement.Center) {
+                Text("Select families", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+            list = ChipGroup(names = selectedItems)
+            Row(Modifier.fillMaxWidth().padding(top = 20.dp), horizontalArrangement = Arrangement.Center) {
+                Text("Select physical states", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+            states = ChipStateGroup(names = statesList)
             DropDownMenu()
-            ChipGroup(names = selectedItems)
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -77,7 +93,18 @@ class FilterActivity : ComponentActivity() {
                 }
                 Spacer(modifier = Modifier.padding(5.dp))
                 Button(
-                    onClick = { globalFilter = filter; finish() },
+                    onClick = { globalFilter = filter;
+                        val returned = Intent()
+                        filterObject.order = order
+                        val statesList = states.toTypedArray()
+                        val familyList = list.toTypedArray()
+                        filterObject.family = list
+                        filterObject.states = states
+                        returned.putExtra("family", familyList)
+                        returned.putExtra("states",statesList)
+                        setResult(1, returned)
+                        finish()
+                              },
                     shape = RoundedCornerShape(20.dp)
                 ) {
                     Text("Confirm")
@@ -88,14 +115,13 @@ class FilterActivity : ComponentActivity() {
     }
     @Composable
     fun simpleRadioButtonComponent(filterArray: List<String>, selectedFilter: String): String {
-            val radioOptions = filterArray
-            val (selectedOption, onOptionSelected) = remember { mutableStateOf(selectedFilter) }
+        val (selectedOption, onOptionSelected) = remember { mutableStateOf(selectedFilter) }
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Column {
-                    radioOptions.forEach { text ->
+                    filterArray.forEach { text ->
                         Row(
                             Modifier
                                 .fillMaxWidth()
@@ -109,12 +135,12 @@ class FilterActivity : ComponentActivity() {
                                 modifier = Modifier.padding(8.dp),
                                 onClick = {
                                     onOptionSelected(text)
-                                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
                                 }
                             )
                             Text(
                                 text = text,
-                                modifier = Modifier.padding(start = 8.dp, top = 8.dp)
+                                modifier = Modifier.padding(start = 8.dp, top = 8.dp),
+                                color = Color.White
                             )
                         }
                     }
@@ -127,7 +153,7 @@ class FilterActivity : ComponentActivity() {
     @Composable
     fun DropDownMenu() {
         val listItems = letterList
-        val contextForToast = LocalContext.current.applicationContext
+        val thisContext= LocalContext.current.applicationContext
 
         // state of the menu
         var expanded by remember {
@@ -136,30 +162,30 @@ class FilterActivity : ComponentActivity() {
 
         // remember the selected item
         var selectedItem by remember {
-            mutableStateOf(listItems[0])
+            mutableStateOf(filterObject.letter)
         }
 
         // box
-        Row(){
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = {
                 expanded = !expanded
             },
-            modifier = Modifier.size(width = 105.dp, height = 60.dp)
+            modifier = Modifier.size(width = 115.dp, height = 60.dp)
         ) {
             // text field
             TextField(
                 value = selectedItem,
                 onValueChange = { selectedLetter = selectedItem},
                 readOnly = true,
-                label = { Text(text = "Letter") },
+                label = { Text(text = "Letter", color = Color.White) },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
                         expanded = expanded
                     )
                 },
-                colors = ExposedDropdownMenuDefaults.textFieldColors()
+                colors = ExposedDropdownMenuDefaults.textFieldColors(textColor = Color.White)
             )
             // menu
             ExposedDropdownMenu(
@@ -173,69 +199,138 @@ class FilterActivity : ComponentActivity() {
                     DropdownMenuItem(onClick = {
                         selectedItem = selectedOption
                         selectedLetter = selectedOption
-                        Toast.makeText(contextForToast, selectedLetter, Toast.LENGTH_SHORT).show()
                         expanded = false
+                        filterObject.letter = selectedItem
                     }) {
-                        Text(text = selectedOption)
+                        Text(text = selectedOption, color= Color.White)
                     }
                 }
             }
         }
-            IconButton(onClick = { selectedLetter = "-"; selectedItem =listItems[0] }) {
+            IconButton(onClick = { selectedLetter = "-"; selectedItem =listItems[0]; filterObject.letter="-" }) {
                 Icon(imageVector = Icons.Default.Close, contentDescription = "Default")
             }
         }
     }
 
-    @Composable
-    fun Chip(
-        name: String = "Chip",
-        isSelected: Boolean = false,
-        onSelectionChanged: (String) -> Unit = {},
-    ) {
-        Surface(
-            modifier = Modifier.padding(4.dp),
-            elevation = 8.dp,
-            shape = MaterialTheme.shapes.medium,
-            color = if (isSelected) Color.LightGray else MaterialTheme.colors.primary
-        ) {
-            Row(modifier = Modifier
-                .toggleable(
-                    value = isSelected,
-                    onValueChange = {
-                        onSelectionChanged(name)
-                    }
-                )
-            ) {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.body2,
-                    color = Color.White,
-                    modifier = Modifier.padding(8.dp)
-                )
-            }
-        }
-    }
-
+    @ExperimentalMaterial3Api
     @Composable
     fun ChipGroup(
-        names: MutableList<String>,
-        selectedCar: String? = null,
-        onSelectedChanged: (String) -> Unit = {},
-    ) {
-        val newNames = names
-        Column(modifier = Modifier.padding(8.dp)) {
-            LazyColumn {
-                items(names) {
-                    Chip(
-                        name = it,
-                        isSelected = selectedCar == it,
-                        onSelectionChanged = {
-                            onSelectedChanged(it)
-                        },
+        names: MutableList<String>
+    ) :MutableList<String>{
+        //var selectedItems:MutableList<String> = mutableListOf( "noble gas", "earth metal", "halogen", "nonmetal","transition metal","alkali metal")
+        val firstFamilies = mutableListOf(names[0],names[1])
+        val lastFamilies = mutableListOf(names[3],names[4])
+        val lastLastFamilies = mutableListOf(names[5],names[2])
+        val familyList = remember{filterObject.family.toMutableList()}
+        val leadingIcon: @Composable () -> Unit = { Icon(Icons.Default.Check, null) }
+        Column(modifier = Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+                firstFamilies.forEach(){ family ->
+                    var selected by remember { mutableStateOf(filterObject.family.contains(family)) }
+                    FilterChip(
+                        modifier = Modifier.padding(end = 8.dp),
+                        selected = selected,
+                        onClick = { selected = !selected;
+                            if(selected) {
+                                familyList.add(family)
+                            }
+                            else{
+                                if(familyList.contains(family)){
+                                    familyList.remove(family)
+                                }
+                            }
+                                  },
+                        label = {Text(family)},
+                        leadingIcon = if (selected) leadingIcon else null
                     )
+
+                }
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+                lastFamilies.forEach(){ family ->
+                    var selected by remember { mutableStateOf(filterObject.family.contains(family)) }
+                    FilterChip(
+                        modifier = Modifier.padding(end = 8.dp),
+                        selected = selected,
+                        onClick = { selected = !selected;
+                            if(selected) {
+                                familyList.add(family)
+                            }
+                            else{
+                                if(familyList.contains(family)){
+                                    familyList.remove(family)
+                                }
+                            }
+                        },
+                        label = {Text(family)},
+                        leadingIcon = if (selected) leadingIcon else null
+                    )
+
+                }
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+                lastLastFamilies.forEach(){ family ->
+                    var selected by remember { mutableStateOf(filterObject.family.contains(family)) }
+                    FilterChip(
+                        modifier = Modifier.padding(end = 8.dp),
+                        selected = selected,
+                        onClick = { selected = !selected;
+                            if(selected) {
+                                familyList.add(family)
+                            }
+                            else{
+                                if(familyList.contains(family)){
+                                    familyList.remove(family)
+                                }
+                            }
+                        },
+                        label = {Text(family)},
+                        leadingIcon = if (selected) leadingIcon else null
+                    )
+
                 }
             }
         }
+        return familyList
     }
+
+    @ExperimentalMaterial3Api
+    @Composable
+    fun ChipStateGroup(
+        names: MutableList<String>
+    ) :MutableList<String>{
+        val statesList = remember{filterObject.states.toMutableList()}
+        val leadingIcon: @Composable () -> Unit = { Icon(Icons.Default.Check, null) }
+        Column(modifier = Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+                names.forEach(){ name ->
+                    var selected by remember { mutableStateOf(filterObject.states.contains(name)) }
+                    FilterChip(
+                        modifier = Modifier.padding(end = 8.dp),
+                        selected = selected,
+                        onClick = { selected = !selected;
+                            if(selected) {
+                                statesList.add(name)
+                            }
+                            else{
+                                if(statesList.contains(name)){
+                                    statesList.remove(name)
+                                }
+                            }
+                        },
+                        label = {Text(name)},
+                        leadingIcon = if (selected) leadingIcon else null
+                    )
+
+                }
+            }
+        }
+        return statesList
+    }
+   
+        /*if(stateList.size<3)
+        return stateList
+        else return listOf("Mayor a tres")*/
+    
 }

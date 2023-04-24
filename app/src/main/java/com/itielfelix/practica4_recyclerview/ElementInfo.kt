@@ -92,9 +92,7 @@ class ElementInfo : ComponentActivity() {
                 AttributeFunction(attribute = "Atomic Mass", value =element.atomicMass)
                 OxidationStatesRow(oxidationStates = oxidationStates)
                 AttributeFunction(attribute = "Physical state", value = element.state)
-                AttributeFunction(attribute = "Physical state", value = element.state)
-                AttributeFunction(attribute = "Physical state", value = element.state)
-                AttributeFunction(attribute = "Physical state", value = element.state)
+                AttributeFunction(attribute = "Family", value = element.family)
                 /*Button(onClick = { finish()}, Modifier.padding(15.dp).size(60.dp, 60.dp).clip(CircleShape)) {
                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription ="Back" )
                 }*/
