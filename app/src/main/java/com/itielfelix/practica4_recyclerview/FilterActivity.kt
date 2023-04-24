@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.itielfelix.practica4_recyclerview.ui.theme.Practica4_RecyclerViewTheme
 var letterList = listOf("-","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
 var selectedLetter = ""
-var selectedItems:MutableList<String> = mutableListOf( "noble gas", "earth metal", "halogen", "nonmetal","transition metal","alkali metal")
+var selectedFamilies:MutableList<String> = mutableListOf( "noble gas", "earth metal", "halogen", "nonmetal","transition metal","alkali metal")
 var statesList:MutableList<String> = mutableListOf("liquid", "gas", "solid")
 
 class FilterActivity : ComponentActivity() {
@@ -76,7 +76,7 @@ class FilterActivity : ComponentActivity() {
             Row(Modifier.fillMaxWidth().padding(top = 20.dp), horizontalArrangement = Arrangement.Center) {
                 Text("Select families", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
-            list = ChipGroup(names = selectedItems)
+            list = ChipGroup(names = selectedFamilies)
             Row(Modifier.fillMaxWidth().padding(top = 20.dp), horizontalArrangement = Arrangement.Center) {
                 Text("Select physical states", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
@@ -218,7 +218,7 @@ class FilterActivity : ComponentActivity() {
     fun ChipGroup(
         names: MutableList<String>
     ) :MutableList<String>{
-        //var selectedItems:MutableList<String> = mutableListOf( "noble gas", "earth metal", "halogen", "nonmetal","transition metal","alkali metal")
+        //var selectedFamilies:MutableList<String> = mutableListOf( "noble gas", "earth metal", "halogen", "nonmetal","transition metal","alkali metal")
         val firstFamilies = mutableListOf(names[0],names[1])
         val lastFamilies = mutableListOf(names[3],names[4])
         val lastLastFamilies = mutableListOf(names[5],names[2])
@@ -328,9 +328,6 @@ class FilterActivity : ComponentActivity() {
         }
         return statesList
     }
-   
-        /*if(stateList.size<3)
-        return stateList
-        else return listOf("Mayor a tres")*/
+
     
 }
