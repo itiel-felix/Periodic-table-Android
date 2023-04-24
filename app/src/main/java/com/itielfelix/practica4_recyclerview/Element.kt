@@ -22,6 +22,7 @@ data class Element(val atomicNum:Int, val symbol: String, val name:String, val a
         parcel.writeString(atomicMass)
         parcel.writeString(oxidationStates)
         parcel.writeString(state)
+        parcel.writeString(family)
     }
 
     override fun describeContents(): Int {
