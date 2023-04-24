@@ -53,9 +53,9 @@ class FilterActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable//Use chips for familys
     fun UIBUilding() {
-        val thisContext = LocalContext.current
-        var list = remember{filterObject.family}
-        var states = remember{filterObject.states}
+        LocalContext.current
+        var list: List<String>
+        var states: List<String>
         Column(
             Modifier
                 .fillMaxSize()
@@ -93,7 +93,7 @@ class FilterActivity : ComponentActivity() {
                 }
                 Spacer(modifier = Modifier.padding(5.dp))
                 Button(
-                    onClick = { globalFilter = filter;
+                    onClick = { globalFilter = filter
                         val returned = Intent()
                         filterObject.order = order
                         val statesList = states.toTypedArray()
@@ -129,7 +129,7 @@ class FilterActivity : ComponentActivity() {
                             verticalAlignment = Alignment.CenterVertically,
 
                             ) {
-                            val context = LocalContext.current
+                            LocalContext.current
                             RadioButton(
                                 selected = (text == selectedOption),
                                 modifier = Modifier.padding(8.dp),
@@ -153,7 +153,7 @@ class FilterActivity : ComponentActivity() {
     @Composable
     fun DropDownMenu() {
         val listItems = letterList
-        val thisContext= LocalContext.current.applicationContext
+        LocalContext.current.applicationContext
 
         // state of the menu
         var expanded by remember {
@@ -226,12 +226,12 @@ class FilterActivity : ComponentActivity() {
         val leadingIcon: @Composable () -> Unit = { Icon(Icons.Default.Check, null) }
         Column(modifier = Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
-                firstFamilies.forEach(){ family ->
+                firstFamilies.forEach { family ->
                     var selected by remember { mutableStateOf(filterObject.family.contains(family)) }
                     FilterChip(
                         modifier = Modifier.padding(end = 8.dp),
                         selected = selected,
-                        onClick = { selected = !selected;
+                        onClick = { selected = !selected
                             if(selected) {
                                 familyList.add(family)
                             }
@@ -248,12 +248,12 @@ class FilterActivity : ComponentActivity() {
                 }
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
-                lastFamilies.forEach(){ family ->
+                lastFamilies.forEach { family ->
                     var selected by remember { mutableStateOf(filterObject.family.contains(family)) }
                     FilterChip(
                         modifier = Modifier.padding(end = 8.dp),
                         selected = selected,
-                        onClick = { selected = !selected;
+                        onClick = { selected = !selected
                             if(selected) {
                                 familyList.add(family)
                             }
@@ -270,12 +270,12 @@ class FilterActivity : ComponentActivity() {
                 }
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
-                lastLastFamilies.forEach(){ family ->
+                lastLastFamilies.forEach { family ->
                     var selected by remember { mutableStateOf(filterObject.family.contains(family)) }
                     FilterChip(
                         modifier = Modifier.padding(end = 8.dp),
                         selected = selected,
-                        onClick = { selected = !selected;
+                        onClick = { selected = !selected
                             if(selected) {
                                 familyList.add(family)
                             }
@@ -304,12 +304,12 @@ class FilterActivity : ComponentActivity() {
         val leadingIcon: @Composable () -> Unit = { Icon(Icons.Default.Check, null) }
         Column(modifier = Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
-                names.forEach(){ name ->
+                names.forEach { name ->
                     var selected by remember { mutableStateOf(filterObject.states.contains(name)) }
                     FilterChip(
                         modifier = Modifier.padding(end = 8.dp),
                         selected = selected,
-                        onClick = { selected = !selected;
+                        onClick = { selected = !selected
                             if(selected) {
                                 statesList.add(name)
                             }
