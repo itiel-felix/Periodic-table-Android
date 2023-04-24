@@ -10,8 +10,8 @@ data class Filter(var order: String, var letter: String, var family: List<String
         parcel.readString()!!,
         parcel.createStringArrayList()!!,
         parcel.createStringArrayList()!!,
-    ) {
-    }
+    )
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(order)
         parcel.writeString(letter)
